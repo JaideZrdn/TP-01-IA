@@ -49,5 +49,5 @@ Situação 3
 3. `move(d, pos(0, 1), pos(2, 0))`
 4. `move(a, pos(5, 1), pos(0, 1))`
 5. `move(b, pos(5, 0), pos(1, 1))`
-6. ---
+6. -
 7. `move(d, pos(2, 0), pos(3, 0))`
