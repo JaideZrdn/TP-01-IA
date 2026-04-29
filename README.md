@@ -1,14 +1,13 @@
 # TP-01-IA
 Trabalho 01 IA - 01/05
 
-
 ### Questão 3
 1. Sf_1
     1. `move(a, pos(3, 0), pos(1, 1))`
     2. `move(b, pos(5, 0), pos(1, 2))`
         1. `apply_gravity()`
             Blocos afetados
-                `on(d, pos(3, 0))
+                `on(d, pos(3, 0))`
     3. `move(b, pos(1, 2), pos(5, 1))`
     4. `move(a, pos(1,1), pos(4, 1))`
     5. `move(c, pos(0, 0), pos(4,2))`
@@ -51,3 +50,11 @@ Situação 3
 5. `move(b, pos(5, 0), pos(1, 1))`
 6. -
 7. `move(d, pos(2, 0), pos(3, 0))`
+
+
+### Questão 5
+- Situação 1
+- Situação 2: `S = [at(a, 0, 1), at(b, 1, 1), at(c, 0, 0), at(d, 3, 0)],
+Plan = [move(a, pos(0, 1), pos(2, 0)), move(b, pos(1, 1), pos(2, 1)), move(c, pos(0, 0), pos(4, 1)), move(b, pos(2, 1), pos(5, 2)), move(a, pos(2, 0), pos(4, 2))].`
+- Situação 3: 
+
