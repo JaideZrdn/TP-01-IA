@@ -43,7 +43,7 @@ A solução utiliza predicados derivados para entender a geometria do estado atu
 
 ### Regras de Movimento (Restrições)
 
-- **Movimento Unitário (`nothing_above`)**: Um bloco só pode ser movido se não houver nenhum outro bloco apoiado sobre ele. Isso impede que blocos sejam "arrastados" com carga.
+- **Movimento Unitário (`nothing_above`)**: Apenas um bloco pode ser movido por vez, mesmo se arrastado, os blocos acima não são carregados junto.
     
 - **Espaço Livre (`destination_clear`)**: Garante que todas as células que o bloco ocupará na posição de destino estejam vazias.
     
