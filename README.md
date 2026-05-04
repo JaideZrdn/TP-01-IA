@@ -6,7 +6,14 @@ Grupo:
 	- Lucas Darcio
 
 ### Questão 1: Modificações na representação
-```text
+
+A proposta expandiria a visão para um espaço bidimensional delimitado em um grid. A representação do estado passaria a definir a ocupação espacial exata de cada elemento. Para isso, o sistema adotaria a estrutura `block(Nome, Width, pos(Left, Bottom))`, na qual a largura e as coordenadas cartesianas determinariam o espaço físico ocupado.
+
+Nesse cenário, a lógica de suporte mudaria. Na versão sem o cálculo do centro de gravidade, um bloco se manteria em pé e estável desde que houvesse pelo menos uma unidade de sobreposição com qualquer bloco posicionado exatamente um nível abaixo dele. Para modelar as consequências físicas de um mundo com lacunas, o sistema implementaria uma mecânica de gravidade. Sempre que a verificação check_if_supported indicasse que uma peça perdeu seu apoio, a função `apply_gravity()` deslocaria o bloco iterativamente para baixo até que ele encontrasse uma nova base ou atingisse o chão.
+
+As regras de transição de estado também ganhariam novas restrições. O deslocamento passaria a contemplar o movimento horizontal, o que permitiria que um bloco fosse arrastado para os lados desde que houvesse células livres na direção desejada. O sistema manteria a restrição de movimento unitário: apenas um bloco poderia ser movimentado por vez na ação `move(Bloco, pos(X1, Y1), pos(X2, Y2))`.`
+
+```prolog
 % Descrição do Espaço
 
 % BLOCO
@@ -27,6 +34,58 @@ block(Nome, Width, pos(Left, Bottom))
 move(Bloco, pos(X1, Y1), pos(X2, Y2)) % move(Bloco, Initial, Final)
 apply_gravity()
 ```
+
+Sobre a questão do centro de gravidade que não foi implementado na versão final, a ideia que tivemos para modelar tal conhecimento exigiria uma validação física mais rigorosa para o equilíbrio das peças. O sistema calcularia o centro de gravidade horizontal do bloco superior. Matematicamente, a equação seria definida como CG_x = Left + (Width / 2). Semanticamente, essa fórmula representaria o ponto exato de concentração de massa do bloco ao longo do eixo horizontal, assumindo uma distribuição uniforme de peso e densidade em toda a sua extensão.
+
+Em seguida, o planejador identificaria todos os blocos de suporte posicionados diretamente abaixo e determinaria os limites extremos dessa base consolidada, ou seja, a menor coordenada à esquerda e a maior coordenada à direita. Para que a configuração fosse considerada estável, o valor de CG_x deveria estar estritamente contido dentro desses limites. Caso o centro de massa ultrapassasse a base de apoio, a estrutura seria classificada como instável e a transição de estado correspondente seria imediatamente bloqueada pelo sistema.
+
+A lógica algorítmica dessa verificação seguiria possivelmente a seguinte estrutura (revisada com IA):
+```prolog
+% 1. Condição trivial: blocos no chão sempre seriam estáveis
+verificar_estabilidade_geometrica(_, _, 0, _) :- !.
+
+% Predicado principal que validaria o centro de massa para blocos acima do chão
+verificar_estabilidade_geometrica(Bloco, NovoX, NovoY, EstadoFuturo) :-
+    NovoY > 0,
+    block_width(Bloco, Largura),
+    
+    % 2. Calcularia o Centro de Gravidade (CG) horizontal
+    % A equação representaria o ponto de equilíbrio perfeito da peça
+    CG_X is NovoX + (Largura / 2.0),
+    
+    % 3. Identificaria as bases de apoio no estado projetado
+    AbaixoY is NovoY - 1,
+    
+    % Buscaria blocos exatamente 1 nível abaixo que tivessem sobreposição horizontal
+    findall(limites(Esq, Dir),
+            ( member(at(OutroBloco, Esq, AbaixoY), EstadoFuturo),
+              block_width(OutroBloco, LargOutro),
+              Dir is Esq + LargOutro,
+              NovoX < Dir,           % Verifica sobreposição pela esquerda
+              Esq < NovoX + Largura  % Verifica sobreposição pela direita
+            ),
+            Suportes),
+    
+    % Chamaria o predicado auxiliar para avaliar o polígono de sustentação
+    avaliar_equilibrio(CG_X, Suportes).
+
+% Se a lista de suportes fosse vazia, o bloco estaria flutuando livremente
+% A gravidade agiria nele posteriormente, logo o movimento inicial seria válido
+avaliar_equilibrio(_, []) :- !.
+
+% 4 e 5. Calcularia os limites espaciais da base consolidada e validaria o equilíbrio
+avaliar_equilibrio(CG_X, Suportes) :-
+    % Extrairia a menor coordenada X entre todas as bases
+    encontrar_menor_esquerda(Suportes, LimiteEsquerdoBase),
+    
+    % Extrairia a maior coordenada X entre todas as bases
+    encontrar_maior_direita(Suportes, LimiteDireitoBase),
+    
+    % Validaria o equilíbrio físico conferindo a contenção do CG
+    LimiteEsquerdoBase =< CG_X,
+    CG_X =< LimiteDireitoBase.
+```
+
 
 ---
 ### Questão 2: Ações associadas às modificações
